@@ -1,0 +1,48 @@
+{
+  "name": "nomad-core",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-09-17",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "vars": {
+    "PUBLIC_ORIGIN": "https://nomad-core.nomad-mcp-feasibility.workers.dev",
+    "ENVIRONMENT": "production",
+    "RELEASE": "2026-09-19",
+    "SUPPORT_EMAIL": "nomad.service.support@gmail.com"
+  },
+  "d1_databases": [
+    { "binding": "DB", "database_name": "nomad-core", "database_id": "c3b925ac-5fcf-4cb9-9800-08ab9a7e8ed7", "migrations_dir": "migrations" }
+  ],
+  "kv_namespaces": [
+    { "binding": "OAUTH_KV", "id": "36967dc599bb4eadb516b0f5bc22c0ef" }
+  ],
+  "r2_buckets": [
+    { "binding": "FILES", "bucket_name": "nomad-files" }
+  ],
+  "ratelimits": [
+    { "name": "USER_RATE_LIMIT", "namespace_id": "18001", "simple": { "limit": 12, "period": 60 } },
+    { "name": "GLOBAL_RATE_LIMIT", "namespace_id": "18002", "simple": { "limit": 20, "period": 60 } }
+  ],
+  "env": {
+    "staging": {
+      "vars": {
+        "PUBLIC_ORIGIN": "https://nomad-core-staging.nomad-mcp-feasibility.workers.dev",
+        "ENVIRONMENT": "staging",
+        "RELEASE": "2026-09-19",
+        "SUPPORT_EMAIL": "nomad.service.support@gmail.com"
+      },
+      "d1_databases": [
+        { "binding": "DB", "database_name": "nomad-core-staging", "database_id": "ac00c7c0-8380-4120-9891-f77be7fbf854", "migrations_dir": "migrations" }
+      ],
+      "kv_namespaces": [
+        { "binding": "OAUTH_KV", "id": "88898b60a2d447ce8989b47e3ce04485" }
+      ],
+      "r2_buckets": [
+        { "binding": "FILES", "bucket_name": "nomad-files-staging" }
+      ],
+      "ratelimits": [
+        { "name": "USER_RATE_LIMIT", "namespace_id": "18011", "simple": { "limit": 12, "period": 60 } },
+        { "name": "GLOBAL_RATE_LIMIT", "namespace_id": "18012", "simple": { "limit": 20, "period": 60 } }
+      ]
+    }
+  }
+}

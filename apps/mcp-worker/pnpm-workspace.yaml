@@ -1,0 +1,8 @@
+allowBuilds:
+  core-js-pure: false
+  esbuild: true
+  workerd: true
+minimumReleaseAgeExclude:
+  - '@cloudflare/workers-types@5.20260917.1'
+  - miniflare@5.20260916.0-alpha
+  - wrangler@4.133.0

@@ -1,0 +1,6 @@
+{
+  "name": "nomad-mcp-feasibility",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-09-17",
+  "compatibility_flags": ["nodejs_compat"]
+}

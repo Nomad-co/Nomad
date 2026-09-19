@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800" role="img" aria-labelledby="title desc">
+  <title id="title">Option A — Calm Passport</title>
+  <desc id="desc">Light warm-white employee passport dashboard with context cards and a connected-tools rail. Concept using sample data.</desc>
+  <rect width="1200" height="800" fill="#F8F6F2"/>
+  <rect x="0" y="0" width="1200" height="72" fill="#FFFFFF"/>
+  <path d="M0 72H1200" stroke="#E6E2DC"/>
+  <rect x="38" y="20" width="31" height="31" rx="9" fill="#A25B43"/>
+  <path d="M47 41V30L60 41V30" stroke="#FFFFFF" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="82" y="42" fill="#25262B" font-family="Arial,Helvetica,sans-serif" font-size="23" font-weight="700">nomad</text>
+  <text x="1040" y="41" fill="#777882" font-family="Arial,Helvetica,sans-serif" font-size="12">CONCEPT · SAMPLE DATA</text>
+  <rect x="34" y="102" width="203" height="666" rx="15" fill="#FFFFFF" stroke="#E6E2DC"/>
+  <text x="55" y="139" fill="#99959A" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="700" letter-spacing="1.3">WORKSPACE</text>
+  <rect x="45" y="157" width="181" height="43" rx="9" fill="#F4E9E2"/>
+  <circle cx="66" cy="178" r="6" fill="#A25B43"/>
+  <text x="83" y="183" fill="#633D31" font-family="Arial,Helvetica,sans-serif" font-size="14" font-weight="700">My passport</text>
+  <text x="83" y="232" fill="#666872" font-family="Arial,Helvetica,sans-serif" font-size="14">Access &amp; consent</text>
+  <text x="83" y="276" fill="#666872" font-family="Arial,Helvetica,sans-serif" font-size="14">Approvals</text>
+  <text x="83" y="320" fill="#666872" font-family="Arial,Helvetica,sans-serif" font-size="14">Activity</text>
+  <text x="83" y="364" fill="#666872" font-family="Arial,Helvetica,sans-serif" font-size="14">Connections</text>
+  <path d="M55 692H216" stroke="#E6E2DC"/>
+  <circle cx="70" cy="729" r="16" fill="#EAE0D9"/>
+  <text x="64" y="734" fill="#684E42" font-family="Arial,Helvetica,sans-serif" font-size="12" font-weight="700">AR</text>
+  <text x="97" y="726" fill="#25262B" font-family="Arial,Helvetica,sans-serif" font-size="13" font-weight="700">Alex Rivera</text>
+  <text x="97" y="744" fill="#87838A" font-family="Arial,Helvetica,sans-serif" font-size="11">Employee workspace</text>
+  <text x="271" y="124" fill="#A25B43" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="700" letter-spacing="1.2">MY PASSPORT</text>
+  <text x="271" y="166" fill="#25262B" font-family="Arial,Helvetica,sans-serif" font-size="31" font-weight="700">Context that travels with you.</text>
+  <text x="271" y="194" fill="#666872" font-family="Arial,Helvetica,sans-serif" font-size="14">Keep useful context current. Decide what each approved assistant may use.</text>
+  <rect x="271" y="224" width="598" height="151" rx="15" fill="#FFFFFF" stroke="#E6E2DC"/>
+  <text x="294" y="258" fill="#25262B" font-family="Arial,Helvetica,sans-serif" font-size="17" font-weight="700">Work passport</text>
+  <text x="294" y="282" fill="#666872" font-family="Arial,Helvetica,sans-serif" font-size="13">Acme Studio · Product organization</text>
+  <rect x="742" y="243" width="103" height="29" rx="14" fill="#F5F2EE"/>
+  <text x="760" y="262" fill="#716B68" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="700">WORK ONLY</text>
+  <path d="M294 306H845" stroke="#EDE9E4"/>
+  <text x="294" y="339" fill="#25262B" font-family="Arial,Helvetica,sans-serif" font-size="21" font-weight="700">24</text>
+  <text x="326" y="339" fill="#7D7A80" font-family="Arial,Helvetica,sans-serif" font-size="12">context fields</text>
+  <text x="510" y="339" fill="#25262B" font-family="Arial,Helvetica,sans-serif" font-size="21" font-weight="700">3</text>
+  <text x="532" y="339" fill="#7D7A80" font-family="Arial,Helvetica,sans-serif" font-size="12">approved tools</text>
+  <text x="718" y="339" fill="#A76413" font-family="Arial,Helvetica,sans-serif" font-size="21" font-weight="700">1</text>
+  <text x="734" y="339" fill="#7D7A80" font-family="Arial,Helvetica,sans-serif" font-size="12">needs review</text>
+  <text x="271" y="416" fill="#25262B" font-family="Arial,Helvetica,sans-serif" font-size="18" font-weight="700">Your context</text>
+  <text x="271" y="439" fill="#777882" font-family="Arial,Helvetica,sans-serif" font-size="12">Organized by purpose, not by chatbot.</text>
+  <rect x="271" y="459" width="288" height="129" rx="13" fill="#FFFFFF" stroke="#E6E2DC"/>
+  <rect x="288" y="476" width="32" height="32" rx="8" fill="#F5EAE5"/>
+  <text x="298" y="498" fill="#A25B43" font-family="Arial,Helvetica,sans-serif" font-size="17" font-weight="700">Aa</text>
+  <text x="332" y="493" fill="#25262B" font-family="Arial,Helvetica,sans-serif" font-size="15" font-weight="700">Communication</text>
+  <text x="289" y="530" fill="#666872" font-family="Arial,Helvetica,sans-serif" font-size="12">Tone, format, accessibility preferences</text>
+  <path d="M289 551H541" stroke="#EEEAE5"/>
+  <text x="289" y="573" fill="#A25B43" font-family="Arial,Helvetica,sans-serif" font-size="12" font-weight="700">8 fields</text>
+  <text x="525" y="573" fill="#A25B43" font-family="Arial,Helvetica,sans-serif" font-size="17">›</text>
+  <rect x="581" y="459" width="288" height="129" rx="13" fill="#FFFFFF" stroke="#E6E2DC"/>
+  <rect x="598" y="476" width="32" height="32" rx="8" fill="#F2EBE6"/>
+  <text x="608" y="498" fill="#8E6553" font-family="Arial,Helvetica,sans-serif" font-size="17" font-weight="700">P</text>
+  <text x="642" y="493" fill="#25262B" font-family="Arial,Helvetica,sans-serif" font-size="15" font-weight="700">Project context</text>
+  <text x="599" y="530" fill="#666872" font-family="Arial,Helvetica,sans-serif" font-size="12">Goals, decisions, working constraints</text>
+  <path d="M599 551H851" stroke="#EEEAE5"/>
+  <text x="599" y="573" fill="#A25B43" font-family="Arial,Helvetica,sans-serif" font-size="12" font-weight="700">12 fields</text>
+  <text x="835" y="573" fill="#A25B43" font-family="Arial,Helvetica,sans-serif" font-size="17">›</text>
+  <rect x="271" y="607" width="598" height="124" rx="13" fill="#FFFFFF" stroke="#E6E2DC"/>
+  <text x="294" y="638" fill="#25262B" font-family="Arial,Helvetica,sans-serif" font-size="15" font-weight="700">A context field, in the open</text>
+  <text x="294" y="665" fill="#25262B" font-family="Arial,Helvetica,sans-serif" font-size="13">“Prefer concise decision summaries with risks called out.”</text>
+  <text x="294" y="697" fill="#777882" font-family="Arial,Helvetica,sans-serif" font-size="11">Added by Alex · Reviewed 12 Sep · Visible to Claude and ChatGPT</text>
+  <rect x="894" y="224" width="272" height="507" rx="15" fill="#FFFFFF" stroke="#E6E2DC"/>
+  <text x="915" y="258" fill="#25262B" font-family="Arial,Helvetica,sans-serif" font-size="17" font-weight="700">Access at a glance</text>
+  <text x="915" y="282" fill="#777882" font-family="Arial,Helvetica,sans-serif" font-size="12">Your choices inside company policy.</text>
+  <path d="M915 302H1145" stroke="#EEEAE5"/>
+  <circle cx="932" cy="330" r="13" fill="#EFE9F8"/>
+  <text x="926" y="335" fill="#6657A8" font-family="Arial,Helvetica,sans-serif" font-size="14" font-weight="700">C</text>
+  <text x="953" y="328" fill="#25262B" font-family="Arial,Helvetica,sans-serif" font-size="13" font-weight="700">Claude</text>
+  <text x="953" y="346" fill="#777882" font-family="Arial,Helvetica,sans-serif" font-size="11">Preferences + Project</text>
+  <text x="1124" y="335" fill="#A25B43" font-family="Arial,Helvetica,sans-serif" font-size="16">›</text>
+  <path d="M915 363H1145" stroke="#EEEAE5"/>
+  <circle cx="932" cy="392" r="13" fill="#E8EDF9"/>
+  <text x="927" y="397" fill="#315FD4" font-family="Arial,Helvetica,sans-serif" font-size="14" font-weight="700">G</text>
+  <text x="953" y="390" fill="#25262B" font-family="Arial,Helvetica,sans-serif" font-size="13" font-weight="700">ChatGPT</text>
+  <text x="953" y="408" fill="#777882" font-family="Arial,Helvetica,sans-serif" font-size="11">Preferences only</text>
+  <text x="1124" y="397" fill="#A25B43" font-family="Arial,Helvetica,sans-serif" font-size="16">›</text>
+  <path d="M915 425H1145" stroke="#EEEAE5"/>
+  <rect x="915" y="448" width="230" height="129" rx="10" fill="#FFF8EF" stroke="#F0E2CA"/>
+  <text x="930" y="473" fill="#A76413" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="700">DECISION NEEDED</text>
+  <text x="930" y="498" fill="#25262B" font-family="Arial,Helvetica,sans-serif" font-size="13" font-weight="700">New project fact</text>
+  <text x="930" y="520" fill="#666872" font-family="Arial,Helvetica,sans-serif" font-size="11">Claude wants to save a proposed</text>
+  <text x="930" y="537" fill="#666872" font-family="Arial,Helvetica,sans-serif" font-size="11">deadline. Review before it is used.</text>
+  <text x="930" y="561" fill="#A25B43" font-family="Arial,Helvetica,sans-serif" font-size="12" font-weight="700">Review request →</text>
+  <text x="915" y="619" fill="#777882" font-family="Arial,Helvetica,sans-serif" font-size="11">Last activity</text>
+  <text x="915" y="641" fill="#25262B" font-family="Arial,Helvetica,sans-serif" font-size="12">ChatGPT read 3 approved fields</text>
+  <text x="915" y="660" fill="#777882" font-family="Arial,Helvetica,sans-serif" font-size="11">For: draft product update · 14:32</text>
+  <text x="915" y="703" fill="#A25B43" font-family="Arial,Helvetica,sans-serif" font-size="12" font-weight="700">View full activity →</text>
+</svg>
