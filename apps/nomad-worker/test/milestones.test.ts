@@ -138,7 +138,7 @@ test("M6 exposes public, policy, and installable PWA routes with browser protect
   try {
     for (const [path, pattern] of [
       ["/welcome", /Your context, between assistants/],
-      ["/setup", /ChatGPT.*Claude/s],
+      ["/setup", /ChatGPT.*Claude.*Gemini/s],
       ["/limits", /model decides when to call Nomad/i],
       ["/privacy", /permanently delete your account/i],
       ["/terms", /enterprise use requires a separate security review/i],
