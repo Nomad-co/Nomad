@@ -28,9 +28,10 @@ export async function getSession(request: Request, env: Env): Promise<Session | 
   return await env.OAUTH_KV.get<Session>(`nomad:session:${token}`, "json");
 }
 
-export function verifyForm(request: Request, session: Session, form: FormData): boolean {
+export function verifyForm(request: Request, session: Session, form: FormData, allowOpaqueOrigin = false): boolean {
   const origin = request.headers.get("Origin");
-  return (!origin || origin === new URL(request.url).origin) && form.get("csrf") === session.csrf;
+  const validOrigin = !origin || origin === new URL(request.url).origin || (allowOpaqueOrigin && origin === "null");
+  return validOrigin && form.get("csrf") === session.csrf;
 }
 
 export async function startGoogle(request: Request, env: Env, oauthRequest?: AuthRequest): Promise<Response> {

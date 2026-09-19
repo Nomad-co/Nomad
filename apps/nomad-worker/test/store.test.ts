@@ -1,9 +1,21 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { getPlatformProxy } from "wrangler";
+import { verifyForm } from "../src/auth.ts";
 import { applyProposal, fetchField, getContext, saveContext, searchFields, updateFieldFromPassport } from "../src/store.ts";
 import { handleApp } from "../src/ui.ts";
 import type { Env } from "../src/types.ts";
+
+test("embedded OAuth consent accepts an opaque origin without weakening other forms", () => {
+  const session = { userId: crypto.randomUUID(), csrf: "known-token" };
+  const form = new FormData();
+  form.set("csrf", session.csrf);
+  const embeddedRequest = new Request("https://nomad.example/consent", { method: "POST", headers: { Origin: "null" } });
+  assert.equal(verifyForm(embeddedRequest, session, form), false);
+  assert.equal(verifyForm(embeddedRequest, session, form, true), true);
+  form.set("csrf", "wrong-token");
+  assert.equal(verifyForm(embeddedRequest, session, form, true), false);
+});
 
 test("M2 store enforces ownership, sealed visibility, audit, and conflicting proposals", async () => {
   const proxy = await getPlatformProxy<Env>({ configPath: "wrangler.jsonc", remoteBindings: false });
@@ -91,6 +103,13 @@ test("passport forms enforce session and CSRF, then add, edit, and sign out", as
     const unauthenticated = await handleApp(new Request(origin), env);
     assert.equal(unauthenticated.status, 303);
     assert.equal(unauthenticated.headers.get("Location"), `${origin}/login`);
+    const passport = await handleApp(new Request(origin, { headers: { Cookie: `nomad_session=${token}` } }), env);
+    const passportPage = await passport.text();
+    assert.match(passportPage, /aria-describedby="project-help"/);
+    assert.match(passportPage, /Groups related context/);
+    assert.match(passportPage, /Names what this fact means/);
+    assert.match(passportPage, /trusted document/);
+    assert.match(passportPage, /Sealed fields are never returned to assistants/);
     const invalid = await handleApp(post("/fields/new", { csrf: "wrong", project: "personal", key: "voice", value: "calm", sensitivity: "normal" }), env);
     assert.equal(invalid.status, 403);
     const added = await handleApp(post("/fields/new", { csrf, project: "personal", key: "voice", value: "calm", sensitivity: "normal" }), env);
