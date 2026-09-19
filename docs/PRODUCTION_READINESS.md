@@ -10,9 +10,9 @@ The deployed Worker is a personal pilot. It must not be represented as enterpris
 |---|---|---|---|
 | 1 | Publish Google OAuth | Public privacy and pilot terms pages exist; OAuth works for test users | Owned production domain verified, consent screen branding reviewed, production callback registered, Google publishing or verification complete |
 | 2 | Production domain and branding | Worker has a stable `workers.dev` pilot URL and `nomad.service.support@gmail.com` as the support contact | Owned domain, DNS, custom Worker route, privacy owner, and final branding approved |
-| 3 | Source control and CI | `Nomad-co/Nomad` contains the full source; CI passes; `main` requires both app checks and one approval; staging and production environments exist; Sai approves production | Add a dedicated scoped Cloudflare API token to both GitHub environments and complete one staging workflow dispatch |
-| 4 | Cloudflare alerts | In-product usage guardrails and read-only degradation exist | Billing, Worker error, D1, KV, and R2 notifications route to two accountable operators and a test notification is acknowledged |
-| 5 | Staging | Isolated D1, KV, R2, Worker hostname, migrations, and smoke check are live | A separate Google OAuth client and staging secrets are configured; authenticated connector smoke passes |
+| 3 | Source control and CI | `Nomad-co/Nomad` contains the full source; CI passes; `main` requires both app checks and one approval; staging and production environments exist; a scoped Cloudflare token is stored in both environments; staging deployment, migrations, and smoke passed in workflow run `35467575409` | Keep the deployment token scoped and rotated; require Sai's approval for production |
+| 4 | Cloudflare alerts | Budget and Cloudflare incident alerts are enabled; the hourly GitHub endpoint monitor passed in run `35465194032`; alerts currently route to the support mailbox | Add a second accountable operator and acknowledge a test notification covering Worker, D1, KV, and R2 incidents |
+| 5 | Staging | Isolated D1, KV, R2, Worker hostname, migrations, and smoke are live; a separate Google OAuth client and encrypted staging secrets are configured; browser sign-in succeeded | Complete one authenticated connector read and write smoke test without production data |
 | 6 | Independent security review | Review scope and trust-boundary documents exist | External reviewer closes all critical/high findings and accepted residual risks have named owners and dates |
 | 7 | Field validation | Personal ChatGPT and Claude connector checks passed | One design-partner organization completes the pilot runbook with two approved assistants and signed exit evidence |
 
@@ -33,3 +33,7 @@ These features require a design partner's identity provider, managed ChatGPT/Cla
 ## Release rule
 
 Production promotion requires one release record containing: CI run, migration result, smoke result, backup checkpoint, security approval, pilot approval, rollback owner, and deployed release identifier. If any item is absent, keep the service in pilot status.
+
+## Recovery evidence
+
+The 2026-09-19 staging drill proved an isolated logical D1 restore, exact authoritative-data equality, and non-restoration of session/OAuth state. Native D1 export is blocked by the schema's FTS5 virtual tables, so a repeatable logical backup job is required before production. The captured dataset had no files; a private application-read test and a non-empty R2 restore are still required. Details are in `docs/OPERATIONS_RUNBOOK.md`.
