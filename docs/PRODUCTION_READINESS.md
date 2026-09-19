@@ -10,7 +10,7 @@ The deployed Worker is a personal pilot. It must not be represented as enterpris
 |---|---|---|---|
 | 1 | Publish Google OAuth | Public privacy and pilot terms pages exist; OAuth works for test users | Owned production domain verified, consent screen branding reviewed, production callback registered, Google publishing or verification complete |
 | 2 | Production domain and branding | Worker has a stable `workers.dev` pilot URL and `nomad.service.support@gmail.com` as the support contact | Owned domain, DNS, custom Worker route, privacy owner, and final branding approved |
-| 3 | Source control and CI | An initial local commit tracks the full source; GitHub CI and manual gated deployment workflows are defined | Repository pushed to a protected remote; required CI checks and production environment approval enabled |
+| 3 | Source control and CI | `Nomad-co/Nomad` contains the full source; CI passes; `main` requires both app checks and one approval; staging and production environments exist; Sai approves production | Add a dedicated scoped Cloudflare API token to both GitHub environments and complete one staging workflow dispatch |
 | 4 | Cloudflare alerts | In-product usage guardrails and read-only degradation exist | Billing, Worker error, D1, KV, and R2 notifications route to two accountable operators and a test notification is acknowledged |
 | 5 | Staging | Isolated D1, KV, R2, Worker hostname, migrations, and smoke check are live | A separate Google OAuth client and staging secrets are configured; authenticated connector smoke passes |
 | 6 | Independent security review | Review scope and trust-boundary documents exist | External reviewer closes all critical/high findings and accepted residual risks have named owners and dates |
