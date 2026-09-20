@@ -44,13 +44,36 @@ test("Gemini consent permits its OAuth return and remains retryable after provid
 
     const cookie = `__Host-nomad_session=${token}`;
     const page = await handleApp(new Request(`https://nomad.example/consent?ticket=${ticket}`, { headers: { Cookie: cookie } }), env);
-    assert.match(page.headers.get("Content-Security-Policy") ?? "", /form-action 'self' https:\/\/oauth-redirect\.googleusercontent\.com/);
+    assert.match(page.headers.get("Content-Security-Policy") ?? "", /form-action 'self' https:\/\/nomad\.example https:\/\/oauth-redirect\.googleusercontent\.com/);
     await assert.rejects(handleApp(new Request("https://nomad.example/consent", {
       method: "POST",
       headers: { Cookie: cookie, Origin: "null", "Content-Type": "application/x-www-form-urlencoded" },
       body: new URLSearchParams({ csrf, ticket, label: "Gemini" }),
     }), env), /provider unavailable/);
     assert.ok(await env.OAUTH_KV.get(consentKey));
+  } finally {
+    await proxy.dispose();
+  }
+});
+
+test("passport presents a simple two-question note form", async () => {
+  const proxy = await getPlatformProxy<Env>({ configPath: "wrangler.jsonc", remoteBindings: false });
+  const env = proxy.env;
+  const userId = crypto.randomUUID();
+  const token = crypto.randomUUID();
+  const csrf = crypto.randomUUID();
+  try {
+    await env.DB.prepare("INSERT INTO users(id,google_sub,email) VALUES(?,?,?)")
+      .bind(userId, `test-${userId}`, "simple@example.test").run();
+    await env.OAUTH_KV.put(`nomad:session:${token}`, JSON.stringify({ userId, csrf }));
+    const response = await handleApp(new Request("https://nomad.example/", {
+      headers: { Cookie: `__Host-nomad_session=${token}` },
+    }), env);
+    const html = await response.text();
+    assert.match(html, /What is this note about\?/);
+    assert.match(html, /What should your assistants remember\?/);
+    assert.match(html, /<details><summary>Folder and privacy \(optional\)<\/summary>/);
+    assert.match(html, />Save note<\/button>/);
   } finally {
     await proxy.dispose();
   }
