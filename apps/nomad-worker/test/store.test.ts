@@ -17,6 +17,45 @@ test("embedded OAuth consent accepts an opaque origin without weakening other fo
   assert.equal(verifyForm(embeddedRequest, session, form, true), false);
 });
 
+test("Gemini consent permits its OAuth return and remains retryable after provider failure", async () => {
+  const proxy = await getPlatformProxy<Env>({ configPath: "wrangler.jsonc", remoteBindings: false });
+  const env = proxy.env;
+  const userId = crypto.randomUUID();
+  const token = crypto.randomUUID();
+  const ticket = crypto.randomUUID();
+  const csrf = crypto.randomUUID();
+  const oauthClientId = crypto.randomUUID();
+  const consentKey = `nomad:consent:${ticket}`;
+  const oauthRequest = {
+    responseType: "code",
+    clientId: oauthClientId,
+    redirectUri: "https://oauth-redirect.googleusercontent.com/r/nomad-test",
+    scope: ["mcp:read", "mcp:write"],
+  };
+  try {
+    await env.DB.prepare("INSERT INTO users(id,google_sub,email) VALUES(?,?,?)")
+      .bind(userId, `test-${userId}`, "gemini@example.test").run();
+    await env.OAUTH_KV.put(`nomad:session:${token}`, JSON.stringify({ userId, csrf }));
+    await env.OAUTH_KV.put(consentKey, JSON.stringify({ userId, request: oauthRequest }));
+    env.OAUTH_PROVIDER = {
+      async lookupClient() { return { clientName: "Gemini" }; },
+      async completeAuthorization() { throw new Error("provider unavailable"); },
+    } as unknown as Env["OAUTH_PROVIDER"];
+
+    const cookie = `__Host-nomad_session=${token}`;
+    const page = await handleApp(new Request(`https://nomad.example/consent?ticket=${ticket}`, { headers: { Cookie: cookie } }), env);
+    assert.match(page.headers.get("Content-Security-Policy") ?? "", /form-action 'self' https:\/\/oauth-redirect\.googleusercontent\.com/);
+    await assert.rejects(handleApp(new Request("https://nomad.example/consent", {
+      method: "POST",
+      headers: { Cookie: cookie, Origin: "null", "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({ csrf, ticket, label: "Gemini" }),
+    }), env), /provider unavailable/);
+    assert.ok(await env.OAUTH_KV.get(consentKey));
+  } finally {
+    await proxy.dispose();
+  }
+});
+
 test("M2 store enforces ownership, sealed visibility, audit, and conflicting proposals", async () => {
   const proxy = await getPlatformProxy<Env>({ configPath: "wrangler.jsonc", remoteBindings: false });
   const env = proxy.env;
