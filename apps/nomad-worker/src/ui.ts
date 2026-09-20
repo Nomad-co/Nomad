@@ -36,6 +36,13 @@ function redirect(request: Request, path: string): Response {
   return Response.redirect(new URL(path, request.url), 303);
 }
 
+function completeConsentRedirect(redirectTo: string): Response {
+  if (new URL(redirectTo).origin === "https://oauth-redirect.googleusercontent.com") {
+    return page("Connection approved", `<header><h1>Connection approved</h1></header><section><p>Nomad approved Gemini. Continue to finish the connection.</p><p><a href="${esc(redirectTo)}" target="_top">Continue to Gemini</a></p></section>`);
+  }
+  return Response.redirect(redirectTo, 302);
+}
+
 async function requireSession(request: Request, env: Env): Promise<Session | Response> {
   return await getSession(request, env) ?? redirect(request, "/login");
 }
@@ -103,7 +110,7 @@ async function consent(request: Request, env: Env, session: Session): Promise<Re
   if (!ticket || !/^[0-9a-f-]{36}$/.test(ticket)) return new Response("Invalid consent request.", { status: 400 });
   const pending = await env.OAUTH_KV.get<ConsentState>(`nomad:consent:${ticket}`, "json");
   if (!pending || pending.userId !== session.userId) return new Response("Consent request expired.", { status: 400 });
-  if ("redirectTo" in pending) return Response.redirect(pending.redirectTo, 302);
+  if ("redirectTo" in pending) return completeConsentRedirect(pending.redirectTo);
   const client = await env.OAUTH_PROVIDER.lookupClient(pending.request.clientId);
   if (!client) return new Response("Unknown assistant client.", { status: 400 });
   return page("Connect assistant", `<header><h1>Connect an assistant</h1></header><section><p>This client requests ${pending.request.scope.includes("mcp:read") ? "read access to your unsealed fields" : "no read access"}${pending.request.scope.includes("mcp:write") ? " and permission to save new facts or propose changes" : ""}: <strong>${esc(client.clientName || "Unnamed client")}</strong>.</p>
@@ -117,7 +124,7 @@ async function completeConsent(request: Request, env: Env, session: Session, for
   if (!/^[0-9a-f-]{36}$/.test(ticket) || !label) return new Response("Invalid consent form.", { status: 400 });
   const pending = await env.OAUTH_KV.get<ConsentState>(`nomad:consent:${ticket}`, "json");
   if (!pending || pending.userId !== session.userId) return new Response("Consent request expired.", { status: 400 });
-  if ("redirectTo" in pending) return Response.redirect(pending.redirectTo, 302);
+  if ("redirectTo" in pending) return completeConsentRedirect(pending.redirectTo);
   const oauthClient = await env.OAUTH_PROVIDER.lookupClient(pending.request.clientId);
   if (!oauthClient) return new Response("Unknown assistant client.", { status: 400 });
   const id = crypto.randomUUID();
@@ -135,7 +142,7 @@ async function completeConsent(request: Request, env: Env, session: Session, for
     props: { userId: session.userId, clientId: client.id },
   });
   await env.OAUTH_KV.put(`nomad:consent:${ticket}`, JSON.stringify({ userId: session.userId, redirectTo }), { expirationTtl: 600 });
-  return Response.redirect(redirectTo, 302);
+  return completeConsentRedirect(redirectTo);
 }
 
 export async function handleApp(request: Request, env: Env): Promise<Response> {
