@@ -259,7 +259,7 @@ export async function handleApp(request: Request, env: Env): Promise<Response> {
   }
   if (request.method !== "POST") return new Response("Not found", { status: 404 });
   const form = await request.formData();
-  if (!verifyForm(request, session, form, url.pathname === "/consent")) return new Response("Invalid form origin or CSRF token.", { status: 403 });
+  if (!verifyForm(request, session, form, ["/consent", "/logout"].includes(url.pathname))) return new Response("Invalid form origin or CSRF token.", { status: 403 });
   if (!["/logout", "/account/delete"].includes(url.pathname) && (env.READ_ONLY_MODE === "true" || (await getUsageState(env, session.userId)).read_only)) {
     return new Response("Nomad is temporarily read-only. Existing context and account export remain available.", { status: 503 });
   }

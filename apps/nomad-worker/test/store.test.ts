@@ -215,7 +215,15 @@ test("passport forms enforce session and CSRF, then add, edit, and sign out", as
     assert.equal(trusted.status, 303);
     const client = await env.DB.prepare("SELECT trust_mode FROM clients WHERE id=?").bind(clientId).first<{ trust_mode: string }>();
     assert.equal(client?.trust_mode, "auto");
-    const signedOut = await handleApp(post("/logout", { csrf }), env);
+    const signedOut = await handleApp(new Request(`${origin}/logout`, {
+      method: "POST",
+      headers: {
+        Cookie: `nomad_session=${token}`,
+        Origin: "null",
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: new URLSearchParams({ csrf }),
+    }), env);
     assert.equal(signedOut.status, 303);
     const after = await handleApp(new Request(origin, { headers: { Cookie: `nomad_session=${token}` } }), env);
     assert.equal(after.status, 303);
