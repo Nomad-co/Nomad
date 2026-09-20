@@ -56,6 +56,52 @@ test("Gemini consent permits its OAuth return and remains retryable after provid
   }
 });
 
+test("Gemini consent repeats the successful redirect when its embedded form submits twice", async () => {
+  const proxy = await getPlatformProxy<Env>({ configPath: "wrangler.jsonc", remoteBindings: false });
+  const env = proxy.env;
+  const userId = crypto.randomUUID();
+  const token = crypto.randomUUID();
+  const ticket = crypto.randomUUID();
+  const csrf = crypto.randomUUID();
+  const oauthClientId = crypto.randomUUID();
+  const redirectTo = "https://oauth-redirect.googleusercontent.com/r/nomad-test?code=issued-code";
+  try {
+    await env.DB.prepare("INSERT INTO users(id,google_sub,email) VALUES(?,?,?)")
+      .bind(userId, `test-${userId}`, "gemini-repeat@example.test").run();
+    await env.OAUTH_KV.put(`nomad:session:${token}`, JSON.stringify({ userId, csrf }));
+    await env.OAUTH_KV.put(`nomad:consent:${ticket}`, JSON.stringify({
+      userId,
+      request: {
+        responseType: "code", clientId: oauthClientId,
+        redirectUri: "https://oauth-redirect.googleusercontent.com/r/nomad-test",
+        scope: ["mcp:read", "mcp:write"],
+      },
+    }));
+    env.OAUTH_PROVIDER = {
+      async lookupClient() { return { clientName: "Gemini" }; },
+      async completeAuthorization() { return { redirectTo }; },
+    } as unknown as Env["OAUTH_PROVIDER"];
+
+    const request = () => new Request("https://nomad.example/consent", {
+      method: "POST",
+      headers: {
+        Cookie: `__Host-nomad_session=${token}`,
+        Origin: "null",
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: new URLSearchParams({ csrf, ticket, label: "Gemini" }),
+    });
+    const first = await handleApp(request(), env);
+    assert.equal(first.status, 302);
+    assert.equal(first.headers.get("Location"), redirectTo);
+    const repeated = await handleApp(request(), env);
+    assert.equal(repeated.status, 302);
+    assert.equal(repeated.headers.get("Location"), redirectTo);
+  } finally {
+    await proxy.dispose();
+  }
+});
+
 test("M2 store enforces ownership, sealed visibility, audit, and conflicting proposals", async () => {
   const proxy = await getPlatformProxy<Env>({ configPath: "wrangler.jsonc", remoteBindings: false });
   const env = proxy.env;
