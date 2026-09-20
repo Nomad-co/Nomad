@@ -1,8 +1,8 @@
 # Nomad
 
-Nomad is a user-owned context layer for AI assistants. It gives a user one place to store selected preferences, project facts, files, and conversation handoffs, then makes that information available to ChatGPT and Claude through a remote Model Context Protocol (MCP) connector.
+Nomad is a user-owned context layer for AI assistants. It gives a user one place to store selected preferences, project facts, files, and conversation handoffs, then makes that information available to ChatGPT, Claude, and Gemini through a remote Model Context Protocol (MCP) connector.
 
-Nomad does not replace an assistant or call a model API. The user continues working inside ChatGPT or Claude, and the assistant calls Nomad only when it needs approved context.
+Nomad does not replace an assistant or call a model API. The user continues working inside ChatGPT, Claude, or Gemini, and the assistant calls Nomad only when it needs approved context.
 
 ## Project objective
 
@@ -28,8 +28,8 @@ Nomad provides a vendor-neutral layer between the user and those assistants. The
 
 ```text
 ChatGPT web ----\
-                 +--- MCP over HTTPS ---> Nomad Worker ---> D1 context and search
-Claude web ------/                         |              \-> R2 file objects
+Claude web ------+--- MCP over HTTPS ---> Nomad Worker ---> D1 context and search
+Gemini web -----/                          |              \-> R2 file objects
                                             \-> KV sessions and OAuth state
 
 Nomad web app ---------------------------> passport, review, audit, export, delete
@@ -126,7 +126,7 @@ Nomad/
 | Milestone | Result |
 |---|---|
 | M1: MCP feasibility | Passed on ChatGPT web and Claude web, including live tool calls and 20 timed calls per client. Claude mobile remains untested. |
-| M2: Authenticated context | Google sign-in, OAuth, real context reads, sealed-field exclusion, audit labels, search/fetch, and proposal collision passed. A ChatGPT Deep Research run remains. |
+| M2: Authenticated context | Google sign-in, OAuth, real context reads, sealed-field exclusion, audit labels, search/fetch, and proposal collision passed. Gemini custom-app support is implemented; its final hosted connection and tool-call validation remains. A ChatGPT Deep Research run also remains. |
 | M3: Quiet consent | Implemented with review proposals, trusted explicit updates, deduplication, supersession, and change history. Real decision-time evidence remains. |
 | M4: Files | Implemented with R2 storage, extraction, chunking, deduplication, and search. A representative real-user PDF check remains. |
 | M5: Thread handoff | ChatGPT-to-Claude hosted handoff passed. More real summaries are needed to measure information loss. |
@@ -203,7 +203,7 @@ cd apps/nomad-worker
 NOMAD_ORIGIN=https://your-worker.example EXPECTED_ENVIRONMENT=staging node scripts/smoke.mjs
 ```
 
-Hosted ChatGPT and Claude checks are intentionally limited to one or two prompts per milestone. Automated tests establish deterministic behavior; hosted checks establish that the actual assistant client can discover and call the deployed tools.
+Hosted ChatGPT, Claude, and Gemini checks are intentionally limited to one or two prompts per milestone. Automated tests establish deterministic behavior; hosted checks establish that the actual assistant client can discover and call the deployed tools.
 
 ## Deployment
 
@@ -212,6 +212,7 @@ GitHub Actions contains separate staging and production deployment paths. Each d
 Current pilot endpoints:
 
 - Production pilot: `https://nomad-core.nomad-mcp-feasibility.workers.dev`
+- Production MCP connector: `https://nomad-core.nomad-mcp-feasibility.workers.dev/mcp`
 - Staging: `https://nomad-core-staging.nomad-mcp-feasibility.workers.dev`
 - Data-free M1 probe: `https://nomad-mcp-feasibility.nomad-mcp-feasibility.workers.dev/mcp`
 
@@ -221,12 +222,12 @@ Production deployments require the protected GitHub environment and reviewer app
 
 1. Open the Nomad web app and sign in with Google.
 2. Add selected context through onboarding or the passport.
-3. Add the product `/mcp` URL as a custom connector in ChatGPT web or Claude.
+3. Add the product `/mcp` URL as a custom connector in ChatGPT web, Claude, or Gemini web.
 4. Complete the OAuth flow and give the client a recognizable label.
 5. Ask the assistant to load saved context, search a file, save an explicit fact, or retrieve a saved thread.
 6. Review proposed overwrites and the audit log in the Nomad web app.
 
-ChatGPT custom connectors are used on the web. Claude can use a remote custom connector when the account or workspace permits it. Assistant providers control tool discovery and when a model chooses to call a connector, so direct prompts are more reliable than assuming automatic invocation.
+ChatGPT custom connectors are used on the web. Claude can use a remote custom connector when the account or workspace permits it. Gemini web users with access to Custom apps can add the same MCP URL under Settings, Personal Intelligence, Connected Apps. Assistant providers control connector availability, tool discovery, and when a model chooses to call a tool, so direct prompts are more reliable than assuming automatic invocation.
 
 ## Current limitations and production work
 
