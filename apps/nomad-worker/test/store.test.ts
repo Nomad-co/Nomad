@@ -92,11 +92,11 @@ test("Gemini consent repeats the successful redirect when its embedded form subm
       body: new URLSearchParams({ csrf, ticket, label: "Gemini" }),
     });
     const first = await handleApp(request(), env);
-    assert.equal(first.status, 302);
-    assert.equal(first.headers.get("Location"), redirectTo);
+    assert.equal(first.status, 200);
+    assert.match(await first.text(), /Continue to Gemini/);
     const repeated = await handleApp(request(), env);
-    assert.equal(repeated.status, 302);
-    assert.equal(repeated.headers.get("Location"), redirectTo);
+    assert.equal(repeated.status, 200);
+    assert.match(await repeated.text(), /Continue to Gemini/);
   } finally {
     await proxy.dispose();
   }
