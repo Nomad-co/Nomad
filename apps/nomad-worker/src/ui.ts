@@ -13,7 +13,7 @@ function esc(value: unknown): string {
   return String(value ?? "").replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]!);
 }
 
-function page(title: string, body: string): Response {
+function page(title: string, body: string, formActionOrigin?: string): Response {
   return new Response(`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#145f57"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Nomad"><link rel="apple-touch-icon" href="/icon.svg"><link rel="manifest" href="/manifest.webmanifest"><title>${esc(title)} · Nomad</title><style>${style}</style></head><body><main>${body}<footer class="muted"><a href="/privacy">Privacy</a> · <a href="/terms">Pilot terms</a></footer></main><script src="/register.js" defer></script></body></html>`, {
     headers: {
       "Content-Type": "text/html; charset=utf-8",
@@ -23,7 +23,7 @@ function page(title: string, body: string): Response {
       "Referrer-Policy": "no-referrer",
       "Permissions-Policy": "camera=(), microphone=(), geolocation=(), payment=(), usb=()",
       "Cross-Origin-Opener-Policy": "same-origin",
-      "Content-Security-Policy": "default-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'; img-src 'self'; style-src 'unsafe-inline'; script-src 'self'; manifest-src 'self'; connect-src 'self'",
+      "Content-Security-Policy": `default-src 'none'; base-uri 'none'; form-action 'self'${formActionOrigin ? ` ${formActionOrigin}` : ""}; frame-ancestors 'none'; img-src 'self'; style-src 'unsafe-inline'; script-src 'self'; manifest-src 'self'; connect-src 'self'`,
     },
   });
 }
@@ -102,7 +102,7 @@ async function consent(request: Request, env: Env, session: Session): Promise<Re
   if (!client) return new Response("Unknown assistant client.", { status: 400 });
   return page("Connect assistant", `<header><h1>Connect an assistant</h1></header><section><p>This client requests ${pending.request.scope.includes("mcp:read") ? "read access to your unsealed fields" : "no read access"}${pending.request.scope.includes("mcp:write") ? " and permission to save new facts or propose changes" : ""}: <strong>${esc(client.clientName || "Unnamed client")}</strong>.</p>
     <p>You choose the label shown in the audit log. Enter “ChatGPT,” “Claude,” or “Gemini” only after checking which assistant opened this page.</p>
-    <form method="post" action="/consent"><input type="hidden" name="csrf" value="${esc(session.csrf)}"><input type="hidden" name="ticket" value="${esc(ticket)}"><label for="label">Audit label</label><input id="label" name="label" required maxlength="80" autocomplete="off"><button type="submit">Connect</button></form></section>`);
+    <form method="post" action="/consent"><input type="hidden" name="csrf" value="${esc(session.csrf)}"><input type="hidden" name="ticket" value="${esc(ticket)}"><label for="label">Audit label</label><input id="label" name="label" required maxlength="80" autocomplete="off"><button type="submit">Connect</button></form></section>`, new URL(pending.request.redirectUri).origin);
 }
 
 async function completeConsent(request: Request, env: Env, session: Session, form: FormData): Promise<Response> {
@@ -111,7 +111,6 @@ async function completeConsent(request: Request, env: Env, session: Session, for
   if (!/^[0-9a-f-]{36}$/.test(ticket) || !label) return new Response("Invalid consent form.", { status: 400 });
   const pending = await env.OAUTH_KV.get<{ userId: string; request: AuthRequest }>(`nomad:consent:${ticket}`, "json");
   if (!pending || pending.userId !== session.userId) return new Response("Consent request expired.", { status: 400 });
-  await env.OAUTH_KV.delete(`nomad:consent:${ticket}`);
   const oauthClient = await env.OAUTH_PROVIDER.lookupClient(pending.request.clientId);
   if (!oauthClient) return new Response("Unknown assistant client.", { status: 400 });
   const id = crypto.randomUUID();
@@ -128,6 +127,7 @@ async function completeConsent(request: Request, env: Env, session: Session, for
     scope: pending.request.scope,
     props: { userId: session.userId, clientId: client.id },
   });
+  await env.OAUTH_KV.delete(`nomad:consent:${ticket}`);
   return Response.redirect(redirectTo, 302);
 }
 
