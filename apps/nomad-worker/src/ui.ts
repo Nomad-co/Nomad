@@ -7,6 +7,10 @@ import { saveThread } from "./threads.ts";
 import { getUsageState } from "./usage.ts";
 import type { Env, Field, Session } from "./types.ts";
 
+type ConsentState =
+  | { userId: string; request: AuthRequest }
+  | { userId: string; redirectTo: string };
+
 const style = `:root{font:16px system-ui;color:#1f2933;background:#f7f7f3}*{box-sizing:border-box}body{margin:0}main{max-width:760px;margin:0 auto;padding:24px}header{display:flex;align-items:center;justify-content:space-between;gap:12px}h1{font-size:1.65rem}h2{font-size:1.18rem;margin-top:32px}a{color:#145f57}section,article{background:white;border:1px solid #dce1dc;border-radius:12px;padding:18px;margin:16px 0}label{display:block;font-weight:600;margin:18px 0 5px}input,textarea,select{width:100%;font:inherit;padding:11px;border:1px solid #9aa9a3;border-radius:8px}textarea{min-height:120px}button{font:inherit;background:#145f57;color:white;border:0;border-radius:8px;padding:11px 18px;cursor:pointer;margin-top:18px}.muted{color:#596963;font-size:.9rem}.field-help{display:block;margin:5px 0 0;color:#596963;font-size:.86rem}.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.row>*{margin:0}details{border-top:1px solid #dce1dc;margin-top:20px;padding-top:14px}summary{color:#145f57;cursor:pointer;font-weight:600}small{color:#596963}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:inherit}nav a{margin-left:14px}`;
 
 function esc(value: unknown): string {
@@ -97,8 +101,9 @@ async function home(request: Request, env: Env, session: Session): Promise<Respo
 async function consent(request: Request, env: Env, session: Session): Promise<Response> {
   const ticket = new URL(request.url).searchParams.get("ticket");
   if (!ticket || !/^[0-9a-f-]{36}$/.test(ticket)) return new Response("Invalid consent request.", { status: 400 });
-  const pending = await env.OAUTH_KV.get<{ userId: string; request: AuthRequest }>(`nomad:consent:${ticket}`, "json");
+  const pending = await env.OAUTH_KV.get<ConsentState>(`nomad:consent:${ticket}`, "json");
   if (!pending || pending.userId !== session.userId) return new Response("Consent request expired.", { status: 400 });
+  if ("redirectTo" in pending) return Response.redirect(pending.redirectTo, 302);
   const client = await env.OAUTH_PROVIDER.lookupClient(pending.request.clientId);
   if (!client) return new Response("Unknown assistant client.", { status: 400 });
   return page("Connect assistant", `<header><h1>Connect an assistant</h1></header><section><p>This client requests ${pending.request.scope.includes("mcp:read") ? "read access to your unsealed fields" : "no read access"}${pending.request.scope.includes("mcp:write") ? " and permission to save new facts or propose changes" : ""}: <strong>${esc(client.clientName || "Unnamed client")}</strong>.</p>
@@ -110,8 +115,9 @@ async function completeConsent(request: Request, env: Env, session: Session, for
   const ticket = String(form.get("ticket") ?? "");
   const label = String(form.get("label") ?? "").trim().slice(0, 80);
   if (!/^[0-9a-f-]{36}$/.test(ticket) || !label) return new Response("Invalid consent form.", { status: 400 });
-  const pending = await env.OAUTH_KV.get<{ userId: string; request: AuthRequest }>(`nomad:consent:${ticket}`, "json");
+  const pending = await env.OAUTH_KV.get<ConsentState>(`nomad:consent:${ticket}`, "json");
   if (!pending || pending.userId !== session.userId) return new Response("Consent request expired.", { status: 400 });
+  if ("redirectTo" in pending) return Response.redirect(pending.redirectTo, 302);
   const oauthClient = await env.OAUTH_PROVIDER.lookupClient(pending.request.clientId);
   if (!oauthClient) return new Response("Unknown assistant client.", { status: 400 });
   const id = crypto.randomUUID();
@@ -128,7 +134,7 @@ async function completeConsent(request: Request, env: Env, session: Session, for
     scope: pending.request.scope,
     props: { userId: session.userId, clientId: client.id },
   });
-  await env.OAUTH_KV.delete(`nomad:consent:${ticket}`);
+  await env.OAUTH_KV.put(`nomad:consent:${ticket}`, JSON.stringify({ userId: session.userId, redirectTo }), { expirationTtl: 600 });
   return Response.redirect(redirectTo, 302);
 }
 
