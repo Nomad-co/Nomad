@@ -44,7 +44,7 @@ test("Gemini consent permits its OAuth return and remains retryable after provid
 
     const cookie = `__Host-nomad_session=${token}`;
     const page = await handleApp(new Request(`https://nomad.example/consent?ticket=${ticket}`, { headers: { Cookie: cookie } }), env);
-    assert.match(page.headers.get("Content-Security-Policy") ?? "", /form-action 'self' https:\/\/oauth-redirect\.googleusercontent\.com/);
+    assert.match(page.headers.get("Content-Security-Policy") ?? "", /form-action 'self' https:\/\/nomad\.example https:\/\/oauth-redirect\.googleusercontent\.com/);
     await assert.rejects(handleApp(new Request("https://nomad.example/consent", {
       method: "POST",
       headers: { Cookie: cookie, Origin: "null", "Content-Type": "application/x-www-form-urlencoded" },
@@ -145,11 +145,12 @@ test("passport forms enforce session and CSRF, then add, edit, and sign out", as
     const passport = await handleApp(new Request(origin, { headers: { Cookie: `nomad_session=${token}` } }), env);
     const passportPage = await passport.text();
     assert.match(passportPage, /aria-describedby="project-help"/);
-    assert.match(passportPage, /you do not need to find them on another website/);
-    assert.match(passportPage, /If you are unsure, keep “personal.”/);
-    assert.match(passportPage, /You make this name yourself/);
-    assert.match(passportPage, /Type it in your own words or copy it from your notes/);
-    assert.match(passportPage, /Sealed never shares it with an assistant/);
+    assert.match(passportPage, /What is this note about\?/);
+    assert.match(passportPage, /What should your assistants remember\?/);
+    assert.match(passportPage, /<details><summary>Folder and privacy \(optional\)<\/summary>/);
+    assert.match(passportPage, /Leave this as “personal” if you are unsure/);
+    assert.match(passportPage, /Sealed is never shared with an assistant/);
+    assert.match(passportPage, />Save note<\/button>/);
     const invalid = await handleApp(post("/fields/new", { csrf: "wrong", project: "personal", key: "voice", value: "calm", sensitivity: "normal" }), env);
     assert.equal(invalid.status, 403);
     const added = await handleApp(post("/fields/new", { csrf, project: "personal", key: "voice", value: "calm", sensitivity: "normal" }), env);
