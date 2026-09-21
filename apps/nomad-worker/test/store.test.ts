@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { getPlatformProxy } from "wrangler";
-import { verifyForm } from "../src/auth.ts";
+import { startGoogle, verifyForm } from "../src/auth.ts";
 import { applyProposal, fetchField, getContext, saveContext, searchFields, updateFieldFromPassport } from "../src/store.ts";
 import { handleApp } from "../src/ui.ts";
 import type { Env } from "../src/types.ts";
@@ -15,6 +15,17 @@ test("embedded OAuth consent accepts an opaque origin without weakening other fo
   assert.equal(verifyForm(embeddedRequest, session, form, true), true);
   form.set("csrf", "wrong-token");
   assert.equal(verifyForm(embeddedRequest, session, form, true), false);
+});
+
+test("Google sign-in always lets a new user choose an account", async () => {
+  const env = {
+    GOOGLE_CLIENT_ID: "test-client",
+    GOOGLE_CLIENT_SECRET: "test-secret",
+    OAUTH_KV: { async put() {} },
+  } as unknown as Env;
+  const response = await startGoogle(new Request("https://nomad.example/login"), env);
+  const location = new URL(response.headers.get("Location")!);
+  assert.equal(location.searchParams.get("prompt"), "select_account");
 });
 
 test("Gemini consent permits its OAuth return and remains retryable after provider failure", async () => {
