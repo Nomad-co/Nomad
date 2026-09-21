@@ -2,6 +2,7 @@ import { AuthorizationError, OAuthProvider } from "@cloudflare/workers-oauth-pro
 import { createMcpHandler } from "agents/mcp/server";
 import { WorkerEntrypoint, env as bindings } from "cloudflare:workers";
 import { handleApp } from "./ui.ts";
+import { authorizationServerMetadata } from "./oauth-metadata.ts";
 import { createServer } from "./tools.ts";
 import type { Env, Identity } from "./types.ts";
 
@@ -21,6 +22,12 @@ class McpApi extends WorkerEntrypoint<Env, Identity> {
 const app: ExportedHandler<Env> = {
   async fetch(request, env) {
     try {
+      // ChatGPT probes the RFC 8414 path scoped to the MCP resource before it
+      // opens the authorization page. The provider serves the root form, while
+      // this compatibility route returns the same authorization-server metadata.
+      if (new URL(request.url).pathname === "/.well-known/oauth-authorization-server/mcp") {
+        return authorizationServerMetadata(env.PUBLIC_ORIGIN);
+      }
       return await handleApp(request, env);
     } catch (error) {
       if (error instanceof AuthorizationError) {

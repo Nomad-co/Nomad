@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { getPlatformProxy } from "wrangler";
 import { startGoogle, verifyForm } from "../src/auth.ts";
+import { authorizationServerMetadata } from "../src/oauth-metadata.ts";
 import { applyProposal, fetchField, getContext, saveContext, searchFields, updateFieldFromPassport } from "../src/store.ts";
 import { handleApp } from "../src/ui.ts";
 import type { Env } from "../src/types.ts";
@@ -26,6 +27,27 @@ test("Google sign-in always lets a new user choose an account", async () => {
   const response = await startGoogle(new Request("https://nomad.example/login"), env);
   const location = new URL(response.headers.get("Location")!);
   assert.equal(location.searchParams.get("prompt"), "select_account");
+});
+
+test("ChatGPT's MCP-scoped authorization-server discovery returns OAuth metadata", async () => {
+  const origin = "https://nomad.example";
+  const response = authorizationServerMetadata(origin);
+  assert.equal(response.headers.get("Content-Type"), "application/json");
+  assert.deepEqual(await response.json(), {
+    issuer: origin,
+    authorization_endpoint: `${origin}/authorize`,
+    token_endpoint: `${origin}/oauth/token`,
+    registration_endpoint: `${origin}/oauth/register`,
+    scopes_supported: ["mcp:read", "mcp:write"],
+    response_types_supported: ["code"],
+    response_modes_supported: ["query"],
+    grant_types_supported: ["authorization_code", "refresh_token"],
+    token_endpoint_auth_methods_supported: ["client_secret_basic", "client_secret_post", "none"],
+    revocation_endpoint: `${origin}/oauth/token`,
+    code_challenge_methods_supported: ["S256"],
+    authorization_response_iss_parameter_supported: true,
+    client_id_metadata_document_supported: true,
+  });
 });
 
 test("Gemini consent permits its OAuth return and remains retryable after provider failure", async () => {
