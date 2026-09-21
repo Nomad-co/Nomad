@@ -6,7 +6,7 @@ import { applyProposal, fetchField, getContext, saveContext, searchFields, updat
 import { handleApp } from "../src/ui.ts";
 import type { Env } from "../src/types.ts";
 
-test("embedded OAuth consent accepts an opaque origin without weakening other forms", () => {
+test("opaque form origins require explicit allowance and a valid CSRF token", () => {
   const session = { userId: crypto.randomUUID(), csrf: "known-token" };
   const form = new FormData();
   form.set("csrf", session.csrf);
@@ -210,7 +210,15 @@ test("passport forms enforce session and CSRF, then add, edit, and sign out", as
     assert.match(passportPage, />Save note<\/button>/);
     const invalid = await handleApp(post("/fields/new", { csrf: "wrong", project: "personal", key: "voice", value: "calm", sensitivity: "normal" }), env);
     assert.equal(invalid.status, 403);
-    const added = await handleApp(post("/fields/new", { csrf, project: "personal", key: "voice", value: "calm", sensitivity: "normal" }), env);
+    const added = await handleApp(new Request(`${origin}/fields/new`, {
+      method: "POST",
+      headers: {
+        Cookie: `nomad_session=${token}`,
+        Origin: "null",
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: new URLSearchParams({ csrf, project: "personal", key: "voice", value: "calm", sensitivity: "normal" }),
+    }), env);
     assert.equal(added.status, 303);
     const field = await env.DB.prepare("SELECT * FROM fields WHERE user_id=? AND key='voice'").bind(userId).first<{ id: string; version: number }>();
     assert.ok(field);
