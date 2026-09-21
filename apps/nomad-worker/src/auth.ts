@@ -53,6 +53,7 @@ export async function startGoogle(request: Request, env: Env, oauthRequest?: Aut
     state,
     nonce,
     access_type: "online",
+    prompt: "select_account",
   }).toString();
   return Response.redirect(url, 302);
 }
